@@ -42,14 +42,13 @@ class Login(object):
             password = self.entry_password.get()
             if user_psw == password:
                 messagebox.showinfo('提示', '登陆成功！')
+                del con
                 m = MainInterface.MainInterface(user)
             else:
                 messagebox.showinfo('提示', '密码错误，登陆失败！')
         except Exception as e:
             print(e)
             messagebox.showinfo('提示', '无此用户，请检查账号！')
-        finally:
-            del con
 
 
 if __name__ == '__main__':
