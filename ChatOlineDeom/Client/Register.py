@@ -67,12 +67,12 @@ class Register(object):
             except Exception as e:
                 print(e)
                 messagebox.showinfo('提示', '注册失败！')
+                del con
             else:
                 messagebox.showinfo('提示', '注册成功！')
                 self.register_ui.destroy()
-                Login.Login()
-            finally:
                 del con
+                Login.Login()
 
 
 if __name__ == '__main__':
