@@ -44,4 +44,41 @@ Day2
             for i in self.user_list:
                 self.udp.udp_send(data.encode('utf-8'), i[1])
 ```
-* 经过简单的测试可以实现该小功能之后我就着手开始实现第一个主要的需求：`群聊功能`
+* 经过简单的测试可以实现该小功能之后我就着手开始实现第一个主要的需求：`群聊功能`<br>
+其实整体的结构与思想与上一个功能类似，只不过是在Text的基础上实现。先将Text设为不可修改，然后在按下按钮调用函数时修改属性state为NORMAL
+插入完之后再改为DISABLE即可。<br>
+以下为用户接收信息的方法：
+```python
+    def user_receive(self): #用户接收信息
+        data = json.dumps({'data': self.user, 'state': 'Login'})
+        self.udp.udp_send(data.encode('utf-8'), self.udp.addr)
+        while True:
+            time.sleep(0.1)
+            rev_data, addr = self.udp.upd_receive()
+            rev_data = json.loads(rev_data.decode('utf-8'))
+            if rev_data['state'] == 'User':
+                user_list = rev_data['data']
+                self.oline_list['text'] = user_list
+                self.public_oline['text'] = user_list
+            if rev_data['state'] == 'SendReturn':
+                chat_data = str(datetime.datetime.now()) + '\n' + rev_data['data'] + '\n'
+                self.chat_text.config(state=tkinter.NORMAL)
+                self.chat_text.insert(tkinter.END, chat_data, 'tag_2')
+                self.chat_text.config(state=tkinter.DISABLED)
+```
+以下为用户发送信息的方法：
+```python
+    def user_send(self): #用户发送信息
+        user_input = self.user_input.get('1.0', tkinter.END)
+        data = {'data': user_input, 'state': 'Send'}
+        data = json.dumps(data)
+        self.udp.udp_send(data.encode('utf-8'), self.udp.addr)
+        self.user_input.delete('1.0', tkinter.END)
+        self.chat_text.config(state=tkinter.NORMAL)
+        self.chat_text.insert(tkinter.END, str(datetime.datetime.now()) + '\n' + user_input + '\n', 'tag_1')
+        self.chat_text.config(state=tkinter.DISABLED)
+```
+在编码时出现的问题：<br>
+---
+* 刚开始写了2个线程：接收线程与主循环线程，但是在运行时发现线程之间如果要动态的修改Lable显示的文字的话要用到queqe。
+于是决定将mainloop()放进主线程中。
