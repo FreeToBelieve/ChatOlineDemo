@@ -147,11 +147,12 @@ class PrivateChat(object):
         self.chat_text.config(state=tkinter.DISABLED)
 
     def user_receive(self): #用户接收从TCP发送来的信息
-        data = self.tcp.client_receive()
-        chat_data = str(datetime.datetime.now()) + '\n' + data + '\n'
-        self.chat_text.config(state=tkinter.NORMAL)
-        self.chat_text.insert(tkinter.END, chat_data, 'tag_2')
-        self.chat_text.config(state=tkinter.DISABLED)
+        while True:
+            data = self.tcp.client_receive()
+            chat_data = str(datetime.datetime.now()) + '\n' + data + '\n'
+            self.chat_text.config(state=tkinter.NORMAL)
+            self.chat_text.insert(tkinter.END, chat_data, 'tag_2')
+            self.chat_text.config(state=tkinter.DISABLED)
 
     def mainloop(self): #主循环
         t = threading.Thread(target=self.user_receive)
